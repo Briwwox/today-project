@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Упс... 429</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
+  <style>
+    :root { --paper: #fffaf3; --ink: #34312f; --pink: #f8dfe3; --pink-deep: #b66d7b; }
+    body {
+      margin: 0; min-height: 100vh; display: flex; flex-direction: column;
+      align-items: center; justify-content: center; background: var(--paper);
+      color: var(--ink); font-family: "Nunito", sans-serif; text-align: center; padding: 20px;
+    }
+    h1 { font-size: 100px; margin: 0; line-height: 1; letter-spacing: -5px; font-weight: 900; color: var(--pink-deep); }
+    p { font-size: 20px; font-weight: 700; color: #8d8580; margin: 20px 0 30px; }
+    .btn {
+      background: var(--ink); color: white; text-decoration: none;
+      padding: 14px 28px; border-radius: 999px; font-weight: 900; transition: transform 0.2s;
+    }
+    .btn:hover { transform: translateY(-3px); }
+  </style>
+</head>
+<body>
+  <div style="font-size: 80px;">⏳</div>
+  <h1>429</h1>
+  <p>Ой, слишком много попыток!<br>Кажется, кто-то очень хочет войти. Подожди минутку и попробуй снова.</p>
+  <a href="/admin/login" class="btn">Вернуться ко входу</a>
+</body>
+</html>

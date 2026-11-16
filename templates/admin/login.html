@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Вход в админку — сегодня 🎉</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --paper: #fffaf3; --ink: #34312f; --muted: #8d8580;
+      --pink: #f8dfe3; --pink-deep: #b66d7b; --white: #fff;
+      --shadow: 0 18px 55px rgba(85, 66, 51, .07);
+    }
+    body {
+      margin: 0; min-height: 100vh; display: grid; place-items: center;
+      background: var(--paper); color: var(--ink); font-family: "Nunito", sans-serif;
+    }
+    .login-card {
+      width: min(100% - 32px, 400px); padding: 36px; background: var(--white);
+      border-radius: 30px; box-shadow: var(--shadow); border: 1px solid rgba(255,255,255,.9);
+    }
+    h1 { margin: 0 0 8px; font-size: 24px; font-weight: 900; }
+    p { margin: 0 0 24px; color: var(--muted); font-size: 14px; }
+    .form-group { margin-bottom: 16px; }
+    label { display: block; margin-bottom: 6px; font-size: 12px; font-weight: 900; color: var(--muted); letter-spacing: .5px; }
+    input {
+      width: 100%; padding: 12px 16px; border: 1px solid #eee7df; border-radius: 12px;
+      font: inherit; background: #faf8f5; box-sizing: border-box;
+    }
+    input:focus { outline: none; border-color: var(--pink-deep); background: var(--white); }
+    button {
+      width: 100%; margin-top: 8px; background: var(--ink); color: white;
+      border: 0; border-radius: 999px; padding: 14px; font: inherit; font-weight: 900;
+      cursor: pointer; transition: transform .18s ease;
+    }
+    button:hover { transform: translateY(-2px); }
+    .error {
+      margin-bottom: 16px; padding: 10px 14px; background: #fdf2f4;
+      color: #b66d7b; border-radius: 10px; font-size: 13px; font-weight: 700;
+    }
+  </style>
+</head>
+<body>
+  <div class="login-card">
+    <h1>Вход для автора ✨</h1>
+    <p>Управление праздниками сайта «сегодня»</p>
+    
+    {% if error %}
+      <div class="error">{{ error }}</div>
+    {% endif %}
+    
+    <form method="POST">
+      <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+      
+      <div class="form-group">
+        <label>ЛОГИН</label>
+        <input type="text" name="username" required placeholder="Введите логин (admin)" value="admin">
+      </div>
+      <div class="form-group">
+        <label>ПАРОЛЬ АДМИНИСТРАТОРА</label>
+        <input type="password" name="password" required placeholder="Введите пароль">
+      </div>
+      <button type="submit">Войти</button>
+    </form>
+  </div>
+</body>
+</html>

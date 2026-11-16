@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Мой профиль — сегодня 🎉</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --paper: #fffaf3; --ink: #34312f; --muted: #8d8580;
+      --pink: #f8dfe3; --pink-deep: #b66d7b; --white: #fff;
+      --shadow: 0 18px 55px rgba(85, 66, 51, .07);
+    }
+    body {
+      margin: 0; min-height: 100vh; background: var(--paper);
+      color: var(--ink); font-family: "Nunito", sans-serif; padding: 30px;
+    }
+    .wrap { max-width: 600px; margin: 0 auto; }
+    .card {
+      background: var(--white); border-radius: 24px; padding: 32px;
+      box-shadow: var(--shadow); border: 1px solid rgba(255,255,255,.9); margin-bottom: 20px;
+    }
+    h1 { margin: 0 0 20px; font-size: 24px; font-weight: 900; }
+    h2 { margin: 0 0 15px; font-size: 18px; font-weight: 900; }
+    .avatar-box { text-align: center; margin-bottom: 20px; }
+    .avatar-box img { width: 120px; height: 120px; border-radius: 50%; object-fit: cover; border: 4px solid var(--pink); }
+    .form-group { margin-bottom: 20px; position: relative; }
+    label { display: block; margin-bottom: 6px; font-size: 12px; font-weight: 900; color: var(--muted); letter-spacing: .5px; }
+    input[type="text"], input[type="password"], input[type="file"] {
+      width: 100%; padding: 12px 16px; border: 1px solid #eee7df; border-radius: 12px;
+      font: inherit; background: #faf8f5; box-sizing: border-box;
+    }
+    input:focus { outline: none; border-color: var(--pink-deep); background: var(--white); }
+    .btn {
+      background: var(--ink); color: white; border: 0; border-radius: 999px;
+      padding: 12px 24px; font: inherit; font-weight: 700; cursor: pointer;
+      text-decoration: none; display: inline-block; transition: transform .18s ease;
+    }
+    .btn:hover { transform: translateY(-2px); }
+    .btn-secondary { background: white; color: var(--ink); border: 1px solid #eee7df; }
+    .flash { margin-bottom: 16px; padding: 10px 14px; border-radius: 10px; font-size: 13px; font-weight: 700; }
+    .success { background: #e1eee4; color: #3b6d47; }
+    .error { background: #fdf2f4; color: #b66d7b; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <a href="/admin" class="btn btn-secondary" style="margin-bottom: 20px;">← Назад в панель</a>
+    
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% for category, message in messages %}
+        <div class="flash {{ category }}">{{ message }}</div>
+      {% endfor %}
+    {% endwith %}
+
+    <div class="card">
+      <h1>Мой профиль</h1>
+      <div class="avatar-box">
+        <img src="{{ url_for('static', filename='uploads/avatars/' + user.avatar) }}">
+        <p style="margin-top: 10px; font-weight: 700;">{{ user.username }} <span class="badge {{ user.role }}" style="font-size: 10px; padding: 2px 6px;">{{ user.role }}</span></p>
+      </div>
+      
+      <h2>Сменить аватарку</h2>
+      <form method="POST" enctype="multipart/form-data">
+        <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+        
+        <input type="hidden" name="action" value="upload_avatar">
+        <div class="form-group">
+          <input type="file" name="avatar" accept="image/*" required>
+        </div>
+        <button type="submit" class="btn">Загрузить</button>
+      </form>
+    </div>
+
+    <div class="card">
+      <h2>Сменить пароль</h2>
+      <form method="POST">
+        <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+        
+        <input type="hidden" name="action" value="change_password">
+        <div class="form-group">
+          <label>Старый пароль</label>
+          <input type="password" name="old_password" required>
+        </div>
+        <div class="form-group">
+          <label>Новый пароль</label>
+          <input type="password" name="new_password" required>
+        </div>
+        <div class="form-group">
+          <label>Повторите новый пароль</label>
+          <input type="password" name="confirm_password" required>
+        </div>
+        <button type="submit" class="btn">Обновить пароль</button>
+      </form>
+    </div>
+  </div>
+</body>
+</html>

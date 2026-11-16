@@ -1,0 +1,25 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+venv/
+.venv/
+env/
+
+# Секреты
+.env
+
+# Базы данных
+database.db
+database.db-journal
+
+# Загруженные файлы (кроме дефолтной аватарки)
+static/uploads/avatars/*
+!static/uploads/avatars/default.png
+
+# Системный мусор
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.log

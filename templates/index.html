@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#fffaf3">
+  <meta name="description" content="Каждый день — новый маленький повод для радости.">
+  
+  <!-- 🎁 OPEN GRAPH (Превью для Телеграма, ВК и др.) -->
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="сегодня 🎉 — праздник каждый день">
+  <meta property="og:description" content="Заходи и узнай, какой милый праздник сегодня!">
+  <meta property="og:image" content="{{ url_for('static', filename='img/og-preview.jpg', _external=True) }}">
+
+  <title>сегодня 🎉 — праздник каждый день</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+  <main class="wrap">
+    <header>
+      <div class="brand">сегодня<span>.</span> 🎉</div>
+      <div style="display: flex; gap: 15px; align-items: center;">
+        <!-- 🔥 СТРИК -->
+        <div id="streak-container" style="display: none; font-weight: 900; color: var(--pink-deep); font-size: 14px;"></div>
+        <div class="date" id="date">загружаем дату…</div>
+        <!-- 🌙 КНОПКА ТЕМЫ (ПОЛЗУНОК) -->
+        <button id="themeToggle" class="theme-toggle" title="Переключить тему" aria-label="Переключить тему">
+          <span class="toggle-icon sun">☀️</span>
+          <span class="toggle-icon moon">🌙</span>
+          <span class="toggle-thumb"></span>
+        </button>
+      </div>
+    </header>
+
+    <section class="intro">
+      <div class="eyebrow">✦ МАЛЕНЬКИЙ ПОВОД РАДОВАТЬСЯ</div>
+      <h1>А что сегодня?</h1>
+      <p class="subtitle">Спойлер: повод для праздника найдётся всегда.</p>
+    </section>
+
+    <!-- Скелетоны: тут пусто, JS всё заполнит -->
+    <article class="card" id="holidayCard" style="--tint:#f8dfe3">
+      <div class="card-top">
+        <span class="tag skeleton-text" id="holidayTag"></span>
+        <span class="tiny-date skeleton-text" id="dayNumber"></span>
+      </div>
+      <div class="hero">
+        <div>
+          <h2 class="holiday-title skeleton-text" id="holidayTitle"></h2>
+          <p class="description skeleton-text" id="holidayDescription"></p>
+        </div>
+        <div class="emoji skeleton-box" id="holidayEmoji" aria-hidden="true"></div>
+      </div>
+      <div class="mission">
+        <div class="mission-icon">💌</div>
+        <div style="flex: 1;">
+          <span class="mission-label">МИССИЯ НА СЕГОДНЯ</span>
+          <p id="holidayMission" class="skeleton-text" style="width: 80%;"></p>
+        </div>
+      </div>
+    </article>
+
+    <div class="actions">
+      <button class="primary" id="surpriseButton">Удиви меня ✨</button>
+      <button class="secondary" id="todayButton">Праздник сегодня ☀️</button>
+      <button class="secondary" id="yesterdayButton">А что было вчера? 🕰</button>
+      <button class="secondary" id="shareButton">Поделиться 📤</button>
+    </div>
+    <p class="note">Праздники здесь шуточные и тематические — зато радость самая настоящая.</p>
+
+    <footer class="bottom">
+      <span>Сделано с <span class="sparkle">♥</span> и щепоткой несерьёзности</span>
+      <strong>Не забудь отпраздновать.</strong>
+    </footer>
+  </main>
+
+  <!-- Уведомление (тост) для копирования ссылки -->
+  <div id="toast" class="toast">Ссылка скопирована!</div>
+
+  <!-- Подключаем библиотеку конфетти -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+  <!-- Подключаем основной скрипт -->
+  <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>
