@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Предложения праздников — админ-панель сегодня 🎉</title>
+  <script src="{{ url_for('static', filename='js/theme.js') }}"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+</head>
+<body>
+  <div class="wrap">
+    <div class="topbar">
+      <h1 class="topbar__title">💡 Предложения пользователей</h1>
+      <div class="nav-actions">
+        <button type="button" id="themeToggle" class="theme-toggle" title="Переключить тему" aria-label="Переключить тему">
+          <span class="toggle-icon sun">☀️</span>
+          <span class="toggle-icon moon">🌙</span>
+          <span class="toggle-thumb"></span>
+        </button>
+        <a href="{{ url_for('admin.admin_dashboard') }}" class="btn btn-ghost">← В дашборд</a>
+      </div>
+    </div>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div class="toast-stack" id="toastStack" role="status" aria-live="polite">
+          {% for category, message in messages %}
+            <div class="toast-item {{ category if category in ('success', 'error') else 'success' }}">
+              <span>{{ message }}</span>
+              <button type="button" class="toast-close" aria-label="Закрыть">✕</button>
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+
+    {% if suggestions %}
+      <div class="suggestions-list">
+        {% for s in suggestions %}
+          <article class="card suggestion-card">
+            <div class="suggestion-header">
+              <span class="suggestion-emoji" aria-hidden="true">{{ s.emoji or '🎉' }}</span>
+              <div>
+                <h2 class="suggestion-title">{{ s.title }}</h2>
+                <div class="suggestion-meta">
+                  От: <strong>{{ s.suggested_by or 'Аноним' }}</strong>
+                  {% if s.created_at %} · {{ s.created_at }}{% endif %}
+                </div>
+              </div>
+            </div>
+
+            <p class="suggestion-desc">{{ s.description }}</p>
+
+            {% if s.mission %}
+              <p class="suggestion-mission"><strong>Миссия:</strong> {{ s.mission }}</p>
+            {% endif %}
+
+            <div class="btn-container suggestion-actions">
+              <form method="POST" action="{{ url_for('admin.admin_approve_suggestion', id=s.id) }}" class="inline-form">
+                <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+                <button type="submit" class="btn btn-approve">✓ Одобрить и добавить</button>
+              </form>
+
+              <form method="POST" action="{{ url_for('admin.admin_delete_suggestion', id=s.id) }}" class="inline-form js-confirm-form" data-confirm="Удалить это предложение?">
+                <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+                <button type="submit" class="btn btn-ghost btn-danger">✕ Удалить</button>
+              </form>
+            </div>
+          </article>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="card">
+        <p class="empty-state">Пока нет новых предложений от пользователей.</p>
+      </div>
+    {% endif %}
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      document.querySelectorAll('.js-confirm-form').forEach((form) => {
+        if (form.dataset.confirmBound === 'true') return;
+        form.dataset.confirmBound = 'true';
+        form.addEventListener('submit', (e) => {
+          const msg = form.dataset.confirm || 'Вы уверены?';
+          if (!confirm(msg)) {
+            e.preventDefault();
+          }
+        });
+      });
+
+      document.querySelectorAll('#toastStack .toast-item').forEach((toast) => {
+        if (toast.dataset.toastBound === 'true') return;
+        toast.dataset.toastBound = 'true';
+        const closeBtn = toast.querySelector('.toast-close');
+        const hideToast = () => {
+          toast.classList.add('is-hiding');
+          setTimeout(() => toast.remove(), 300);
+        };
+        const timer = setTimeout(hideToast, 3500);
+        closeBtn?.addEventListener('click', () => {
+          clearTimeout(timer);
+          hideToast();
+        });
+      });
+    });
+  </script>
+</body>
+</html>

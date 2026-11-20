@@ -4,95 +4,135 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Мой профиль — сегодня 🎉</title>
+  <script src="{{ url_for('static', filename='js/theme.js') }}"></script>
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;900&display=swap" rel="stylesheet">
-  <style>
-    :root {
-      --paper: #fffaf3; --ink: #34312f; --muted: #8d8580;
-      --pink: #f8dfe3; --pink-deep: #b66d7b; --white: #fff;
-      --shadow: 0 18px 55px rgba(85, 66, 51, .07);
-    }
-    body {
-      margin: 0; min-height: 100vh; background: var(--paper);
-      color: var(--ink); font-family: "Nunito", sans-serif; padding: 30px;
-    }
-    .wrap { max-width: 600px; margin: 0 auto; }
-    .card {
-      background: var(--white); border-radius: 24px; padding: 32px;
-      box-shadow: var(--shadow); border: 1px solid rgba(255,255,255,.9); margin-bottom: 20px;
-    }
-    h1 { margin: 0 0 20px; font-size: 24px; font-weight: 900; }
-    h2 { margin: 0 0 15px; font-size: 18px; font-weight: 900; }
-    .avatar-box { text-align: center; margin-bottom: 20px; }
-    .avatar-box img { width: 120px; height: 120px; border-radius: 50%; object-fit: cover; border: 4px solid var(--pink); }
-    .form-group { margin-bottom: 20px; position: relative; }
-    label { display: block; margin-bottom: 6px; font-size: 12px; font-weight: 900; color: var(--muted); letter-spacing: .5px; }
-    input[type="text"], input[type="password"], input[type="file"] {
-      width: 100%; padding: 12px 16px; border: 1px solid #eee7df; border-radius: 12px;
-      font: inherit; background: #faf8f5; box-sizing: border-box;
-    }
-    input:focus { outline: none; border-color: var(--pink-deep); background: var(--white); }
-    .btn {
-      background: var(--ink); color: white; border: 0; border-radius: 999px;
-      padding: 12px 24px; font: inherit; font-weight: 700; cursor: pointer;
-      text-decoration: none; display: inline-block; transition: transform .18s ease;
-    }
-    .btn:hover { transform: translateY(-2px); }
-    .btn-secondary { background: white; color: var(--ink); border: 1px solid #eee7df; }
-    .flash { margin-bottom: 16px; padding: 10px 14px; border-radius: 10px; font-size: 13px; font-weight: 700; }
-    .success { background: #e1eee4; color: #3b6d47; }
-    .error { background: #fdf2f4; color: #b66d7b; }
-  </style>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
 </head>
 <body>
-  <div class="wrap">
-    <a href="/admin" class="btn btn-secondary" style="margin-bottom: 20px;">← Назад в панель</a>
-    
+  <div class="wrap-sm">
+    <div class="topbar">
+      <h2>👤 Профиль администратора</h2>
+      <div class="nav-actions">
+        <button type="button" id="themeToggle" class="theme-toggle" title="Переключить тему" aria-label="Переключить тему">
+          <span class="toggle-icon sun">☀️</span>
+          <span class="toggle-icon moon">🌙</span>
+          <span class="toggle-thumb"></span>
+        </button>
+        <a href="{{ url_for('admin.admin_dashboard') }}" class="btn btn-ghost">← Назад в панель</a>
+      </div>
+    </div>
+
     {% with messages = get_flashed_messages(with_categories=true) %}
-      {% for category, message in messages %}
-        <div class="flash {{ category }}">{{ message }}</div>
-      {% endfor %}
+      {% if messages %}
+        <div class="toast-stack" id="toastStack" role="status" aria-live="polite">
+          {% for category, message in messages %}
+            <div class="toast-item {{ category if category in ('success', 'error') else 'success' }}">
+              <span>{{ message }}</span>
+              <button type="button" class="toast-close" aria-label="Закрыть">✕</button>
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
     {% endwith %}
 
     <div class="card">
       <h1>Мой профиль</h1>
       <div class="avatar-box">
-        <img src="{{ url_for('static', filename='uploads/avatars/' + user.avatar) }}">
-        <p style="margin-top: 10px; font-weight: 700;">{{ user.username }} <span class="badge {{ user.role }}" style="font-size: 10px; padding: 2px 6px;">{{ user.role }}</span></p>
+        <img src="{{ url_for('static', filename='uploads/avatars/' + (user.avatar or 'default.png')) }}" alt="Аватар пользователя {{ user.username }}" id="currentAvatarImg">
+        <p class="profile-username">{{ user.username }} <span class="badge {{ user.role }}">{{ user.role }}</span></p>
+        {% if user.avatar and user.avatar != 'default.png' %}
+          <form method="POST" action="{{ url_for('admin.admin_profile') }}" class="avatar-delete-form js-confirm-form" data-confirm="Удалить текущую аватарку и вернуть стандартную?">
+            <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+            <input type="hidden" name="action" value="delete_avatar">
+            <button type="submit" class="btn btn-ghost avatar-del-btn">🗑 Удалить аватарку</button>
+          </form>
+        {% endif %}
       </div>
-      
+
       <h2>Сменить аватарку</h2>
-      <form method="POST" enctype="multipart/form-data">
+      <form method="POST" action="{{ url_for('admin.admin_profile') }}" enctype="multipart/form-data" id="avatarUploadForm">
         <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
-        
         <input type="hidden" name="action" value="upload_avatar">
         <div class="form-group">
-          <input type="file" name="avatar" accept="image/*" required>
+          <label for="avatarFileInput" class="sr-only">Выберите файл изображения</label>
+          <input type="file" name="avatar" id="avatarFileInput" accept=".png,.jpg,.jpeg,.gif" required>
         </div>
-        <button type="submit" class="btn">Загрузить</button>
+
+        <div class="cropper-panel hidden" id="cropperPanel">
+          <div class="cropper-layout">
+            <div class="cropper-stage-wrap">
+              <div class="cropper-stage" id="cropperStage" title="Перетаскивайте изображение">
+                <img id="cropperImage" alt="Предпросмотр кадрирования" draggable="false">
+                <div class="cropper-circle-guide"></div>
+              </div>
+              <div class="cropper-hint">Перетаскивайте фото и меняйте масштаб</div>
+            </div>
+
+            <div class="cropper-side">
+              <div class="cropper-mini-label">В миниатюре</div>
+              <div class="cropper-mini-preview">
+                <canvas id="miniPreviewCanvas" width="64" height="64"></canvas>
+              </div>
+              <div class="cropper-mini-sub">Так будет в шапке и профиле</div>
+
+              <label class="cropper-zoom-label" for="cropZoomRange">Масштаб</label>
+              <input type="range" id="cropZoomRange" min="1" max="3" step="0.02" value="1">
+              <button type="button" class="btn btn-ghost btn-sm crop-reset-btn" id="cropResetBtn">Сбросить позицию</button>
+            </div>
+          </div>
+        </div>
+
+        <button type="submit" class="btn hidden" id="saveAvatarBtn">Сохранить аватарку</button>
       </form>
     </div>
 
     <div class="card">
       <h2>Сменить пароль</h2>
-      <form method="POST">
+      <form method="POST" action="{{ url_for('admin.admin_profile') }}">
         <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
-        
         <input type="hidden" name="action" value="change_password">
         <div class="form-group">
-          <label>Старый пароль</label>
-          <input type="password" name="old_password" required>
+          <label for="oldPasswordInput">Старый пароль</label>
+          <input id="oldPasswordInput" type="password" name="old_password" required autocomplete="current-password">
         </div>
         <div class="form-group">
-          <label>Новый пароль</label>
-          <input type="password" name="new_password" required>
+          <label for="newPasswordInput">Новый пароль</label>
+          <input id="newPasswordInput" type="password" name="new_password" minlength="8" required autocomplete="new-password">
         </div>
         <div class="form-group">
-          <label>Повторите новый пароль</label>
-          <input type="password" name="confirm_password" required>
+          <label for="confirmPasswordInput">Повторите новый пароль</label>
+          <input id="confirmPasswordInput" type="password" name="confirm_password" minlength="8" required autocomplete="new-password">
         </div>
         <button type="submit" class="btn">Обновить пароль</button>
       </form>
     </div>
   </div>
+
+  <script src="{{ url_for('static', filename='js/profile.js') }}"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      document.querySelectorAll('.js-confirm-form').forEach((form) => {
+        form.addEventListener('submit', (e) => {
+          const msg = form.dataset.confirm || 'Вы уверены?';
+          if (!confirm(msg)) {
+            e.preventDefault();
+          }
+        });
+      });
+
+      document.querySelectorAll('#toastStack .toast-item').forEach((toast) => {
+        const closeBtn = toast.querySelector('.toast-close');
+        const hideToast = () => {
+          toast.classList.add('is-hiding');
+          setTimeout(() => toast.remove(), 300);
+        };
+        const timer = setTimeout(hideToast, 3500);
+        closeBtn?.addEventListener('click', () => {
+          clearTimeout(timer);
+          hideToast();
+        });
+      });
+    });
+  </script>
 </body>
 </html>

@@ -5,47 +5,59 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#fffaf3">
   <meta name="description" content="Каждый день — новый маленький повод для радости.">
-  
-  <!-- 🎁 OPEN GRAPH (Превью для Телеграма, ВК и др.) -->
-  <meta property="og:type" content="website">
-  <meta property="og:title" content="сегодня 🎉 — праздник каждый день">
-  <meta property="og:description" content="Заходи и узнай, какой милый праздник сегодня!">
-  <meta property="og:image" content="{{ url_for('static', filename='img/og-preview.jpg', _external=True) }}">
+  <meta name="csrf-token" content="{{ csrf_token() }}">
+  <link rel="icon" type="image/png" href="{{ url_for('static', filename='img/favicon.png') }}">
 
-  <title>сегодня 🎉 — праздник каждый день</title>
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="сегодня — праздник каждый день">
+  <meta property="og:description" content="Заходи и узнай, какой милый праздник сегодня!">
+  <meta property="og:image" id="ogImage" content="{{ url_for('static', filename='img/og-preview.jpg', _external=True) }}">
+
+  <title>сегодня — праздник каждый день</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-  
+
+  <script src="{{ url_for('static', filename='js/theme.js') }}"></script>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
   <main class="wrap">
     <header>
       <div class="brand">сегодня<span>.</span> 🎉</div>
-      <div style="display: flex; gap: 15px; align-items: center;">
-        <!-- 🔥 СТРИК -->
-        <div id="streak-container" style="display: none; font-weight: 900; color: var(--pink-deep); font-size: 14px;"></div>
+      <div class="header-controls">
         <div class="date" id="date">загружаем дату…</div>
-        <!-- 🌙 КНОПКА ТЕМЫ (ПОЛЗУНОК) -->
-        <button id="themeToggle" class="theme-toggle" title="Переключить тему" aria-label="Переключить тему">
+
+        <button type="button" id="openFavorites" class="secondary fav-trigger-btn" title="Избранные праздники" aria-label="Избранные праздники">
+          ⭐ <span id="favCount">0</span>
+        </button>
+
+        <!-- Временно скрыта:
+        <a href="https://pay.cloudtips.ru/p/438e2ef4" target="_blank" rel="noopener noreferrer" class="btn-donate" title="Поддержать проект ❤️">
+          <span>☕</span> Поддержать
+        </a>
+        -->
+
+        <button type="button" id="themeToggle" class="theme-toggle" title="Переключить тему" aria-label="Переключить тему">
           <span class="toggle-icon sun">☀️</span>
           <span class="toggle-icon moon">🌙</span>
           <span class="toggle-thumb"></span>
         </button>
       </div>
+      <div id="streak-container" class="streak-badge"></div>
     </header>
 
     <section class="intro">
-      <div class="eyebrow">✦ МАЛЕНЬКИЙ ПОВОД РАДОВАТЬСЯ</div>
+      <div class="eyebrow">✦ КАЖДЫЙ ДЕНЬ ОСОБЕННЫЙ</div>
       <h1>А что сегодня?</h1>
-      <p class="subtitle">Спойлер: повод для праздника найдётся всегда.</p>
     </section>
 
-    <!-- Скелетоны: тут пусто, JS всё заполнит -->
     <article class="card" id="holidayCard" style="--tint:#f8dfe3">
       <div class="card-top">
-        <span class="tag skeleton-text" id="holidayTag"></span>
+        <div class="card-badges">
+          <span class="tag skeleton-text" id="holidayTag"></span>
+          <span class="type-badge skeleton-text" id="holidayType"></span>
+        </div>
         <span class="tiny-date skeleton-text" id="dayNumber"></span>
       </div>
       <div class="hero">
@@ -57,34 +69,73 @@
       </div>
       <div class="mission">
         <div class="mission-icon">💌</div>
-        <div style="flex: 1;">
+        <div class="block-content">
           <span class="mission-label">МИССИЯ НА СЕГОДНЯ</span>
-          <p id="holidayMission" class="skeleton-text" style="width: 80%;"></p>
+          <p id="holidayMission" class="skeleton-text mission-text-skeleton"></p>
+        </div>
+      </div>
+
+      <div class="fact hidden" id="holidayFactWrap">
+        <div class="fact-icon">💡</div>
+        <div class="block-content">
+          <span class="fact-label">ИНТЕРЕСНЫЙ ФАКТ</span>
+          <p id="holidayFact" class="reset-p"></p>
         </div>
       </div>
     </article>
 
-    <div class="actions">
-      <button class="primary" id="surpriseButton">Удиви меня ✨</button>
-      <button class="secondary" id="todayButton">Праздник сегодня ☀️</button>
-      <button class="secondary" id="yesterdayButton">А что было вчера? 🕰</button>
-      <button class="secondary" id="shareButton">Поделиться 📤</button>
+    <div class="daily-message hidden" id="dailyMessageWrap">
+      <div class="daily-message-icon">✨</div>
+      <div class="block-content">
+        <span class="daily-message-label">ПОСЛАНИЕ ДНЯ</span>
+        <p id="dailyMessageText" class="reset-p"></p>
+      </div>
     </div>
-    <p class="note">Праздники здесь шуточные и тематические — зато радость самая настоящая.</p>
 
-    <footer class="bottom">
-      <span>Сделано с <span class="sparkle">♥</span> и щепоткой несерьёзности</span>
-      <strong>Не забудь отпраздновать.</strong>
+    <div class="actions-grid">
+      <button type="button" class="primary btn-full" id="surpriseButton">Удиви меня ✨</button>
+      <button type="button" class="secondary" id="todayButton">Праздник сегодня ☀️</button>
+      <button type="button" class="secondary" id="yesterdayButton">А что было вчера? 🕰</button>
+      <button type="button" class="secondary" id="favoriteBtn" aria-pressed="false">⭐ В избранное</button>
+      <button type="button" class="secondary like-btn" id="likeBtn" aria-label="Нравится" aria-pressed="false">
+        ❤️ <span id="likeCount">0</span>
+      </button>
+      <button type="button" class="secondary btn-full" id="shareButton">Поделиться 📤</button>
+    </div>
+
+    <footer class="bottom suggest-footer">
+      <a href="{{ url_for('main.suggest_holiday') }}" class="suggest-footer-link">✨ Предложить свой праздник</a>
     </footer>
   </main>
 
-  <!-- Уведомление (тост) для копирования ссылки -->
-  <div id="toast" class="toast">Ссылка скопирована!</div>
+  <div id="favoritesModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="favoritesModalTitle">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 id="favoritesModalTitle" class="modal-title">⭐ Избранные праздники</h3>
+        <button type="button" id="closeFavorites" class="modal-close" aria-label="Закрыть окно">✕</button>
+      </div>
+      <div id="favoritesList" class="favorites-list">
+      </div>
+    </div>
+  </div>
 
-  <!-- Подключаем библиотеку конфетти -->
-  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  <div id="toast" class="toast" role="status" aria-live="polite">Ссылка скопирована!</div>
 
-  <!-- Подключаем основной скрипт -->
+  <script defer src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
   <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+
+  <!-- Yandex.Metrika counter -->
+  <script type="text/javascript">
+      (function(m,e,t,r,i,k,a){
+          m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+          m[i].l=1*new Date();
+          for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
+          k=e.createElement(t),a=e.createElement(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)
+      })(window, document,'script','https://mc.yandex.ru/metrika/tag.js?id=114407978', 'ym');
+
+      ym(114407978, 'init', {ssr:true, webvisor:true, clickmap:true, ecommerce:"dataLayer", referrer: document.referrer, url: location.href, accurateTrackBounce:true, trackLinks:true});
+  </script>
+  <noscript><div><img src="https://mc.yandex.ru/watch/114407978" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+  <!-- /Yandex.Metrika counter -->
 </body>
 </html>

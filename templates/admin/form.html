@@ -4,109 +4,97 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Праздник — админ-панель сегодня 🎉</title>
+  <script src="{{ url_for('static', filename='js/theme.js') }}"></script>
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;900&display=swap" rel="stylesheet">
-  <style>
-    :root {
-      --paper: #fffaf3;
-      --ink: #34312f;
-      --muted: #8d8580;
-      --pink: #f8dfe3;
-      --pink-deep: #b66d7b;
-      --white: #fff;
-      --shadow: 0 18px 55px rgba(85, 66, 51, .07);
-    }
-    body {
-      margin: 0;
-      min-height: 100vh;
-      background: var(--paper);
-      color: var(--ink);
-      font-family: "Nunito", sans-serif;
-      padding: 30px;
-    }
-    .wrap { max-width: 600px; margin: 0 auto; }
-    .card {
-      background: var(--white);
-      border-radius: 24px;
-      padding: 32px;
-      box-shadow: var(--shadow);
-      border: 1px solid rgba(255,255,255,.9);
-    }
-    h1 { margin: 0 0 20px; font-size: 24px; font-weight: 900; }
-    .form-group { margin-bottom: 20px; }
-    label { display: block; margin-bottom: 6px; font-size: 12px; font-weight: 900; color: var(--muted); letter-spacing: .5px; }
-    input[type="text"], input[type="color"], textarea {
-      width: 100%;
-      padding: 12px 16px;
-      border: 1px solid #eee7df;
-      border-radius: 12px;
-      font: inherit;
-      background: #faf8f5;
-      box-sizing: border-box;
-    }
-    input[type="color"] { padding: 4px; height: 45px; cursor: pointer; }
-    input:focus, textarea:focus { outline: none; border-color: var(--pink-deep); background: var(--white); }
-    textarea { resize: vertical; height: 100px; }
-    .checkbox-group { display: flex; align-items: center; gap: 10px; }
-    .checkbox-group input { width: 18px; height: 18px; accent-color: var(--pink-deep); cursor: pointer; }
-    .btn-container { display: flex; gap: 12px; margin-top: 30px; }
-    .btn {
-      background: var(--ink); color: white; border: 0; border-radius: 999px;
-      padding: 12px 24px; font: inherit; font-weight: 700; cursor: pointer;
-      text-decoration: none; display: inline-block; transition: transform .18s ease;
-    }
-    .btn:hover { transform: translateY(-2px); }
-    .btn-secondary { background: white; color: var(--ink); border: 1px solid #eee7df; }
-  </style>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
 </head>
 <body>
-  <div class="wrap">
+  {% set back_q = request.args.get('q', '') %}
+  <div class="wrap-sm">
+    <div class="topbar topbar--compact">
+      <h2 class="topbar__title">Редактирование</h2>
+      <div class="nav-actions">
+        <button type="button" id="themeToggle" class="theme-toggle" title="Переключить тему" aria-label="Переключить тему">
+          <span class="toggle-icon sun">☀️</span>
+          <span class="toggle-icon moon">🌙</span>
+          <span class="toggle-thumb"></span>
+        </button>
+        <a href="{{ url_for('admin.admin_dashboard', q=back_q) if back_q else url_for('admin.admin_dashboard') }}" class="btn btn-ghost">← Назад</a>
+      </div>
+    </div>
+
     <div class="card">
       <h1>{{ title_text }}</h1>
-      
+
       <form method="POST">
         <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
-        
+
         <div class="form-group">
-          <label>НАЗВАНИЕ ПРАЗДНИКА</label>
-          <input type="text" name="title" required value="{{ holiday.title if holiday else '' }}" placeholder="Например: День хорошего настроения">
+          <label for="holidayTitleInput">НАЗВАНИЕ ПРАЗДНИКА</label>
+          <input id="holidayTitleInput" type="text" name="title" maxlength="150" required value="{{ holiday.title if holiday else '' }}" placeholder="Например: День хорошего настроения">
         </div>
 
         <div class="form-group">
-          <label>ДАТА ПОКАЗА (формат ММ-ДД, например 11-16)</label>
-          <input type="text" name="show_date" value="{{ holiday.show_date if holiday else '' }}" placeholder="11-16">
+          <label for="datePicker">ДАТА ПОКАЗА (выберите день в календаре)</label>
+          <div class="date-picker-row">
+            <input type="date" id="datePicker" class="flex-1">
+            <input type="text" name="show_date" id="showDateInput" readonly aria-label="Дата показа в формате ММ-ДД" value="{{ holiday.show_date if holiday else '' }}" placeholder="ММ-ДД" class="date-readonly">
+            <button type="button" id="clearDateBtn" title="Очистить дату" aria-label="Очистить дату" class="btn-clear-date">✕</button>
+          </div>
         </div>
 
         <div class="form-group">
-          <label>ЭМОДЗИ (иконка)</label>
-          <input type="text" name="emoji" required value="{{ holiday.emoji if holiday else '🎉' }}" placeholder="😊">
+          <label for="holidayEmojiInput">ЭМОДЗИ (иконка)</label>
+          <input id="holidayEmojiInput" type="text" name="emoji" maxlength="16" required value="{{ holiday.emoji if holiday else '🎉' }}" placeholder="😊">
         </div>
 
         <div class="form-group">
-          <label>ЦВЕТОВОЙ ФОН (tint)</label>
-          <input type="color" name="tint" required value="{{ holiday.tint if holiday else '#f8dfe3' }}">
+          <label for="holidayTintInput">ЦВЕТОВОЙ ФОН (tint)</label>
+          <input id="holidayTintInput" type="color" name="tint" required value="{{ holiday.tint if holiday else '#f8dfe3' }}">
         </div>
 
         <div class="form-group">
-          <label>ОПИСАНИЕ</label>
-          <textarea name="description" required placeholder="Пара предложений о празднике...">{{ holiday.description if holiday else '' }}</textarea>
+          <label for="holidayDescriptionInput">ОПИСАНИЕ</label>
+          <textarea id="holidayDescriptionInput" name="description" maxlength="1500" required placeholder="Пара предложений о празднике...">{{ holiday.description if holiday else '' }}</textarea>
         </div>
 
         <div class="form-group">
-          <label>МИССИЯ НА СЕГОДНЯ</label>
-          <input type="text" name="mission" required value="{{ holiday.mission if holiday else '' }}" placeholder="Что нужно сделать сегодня?">
+          <label for="holidayMissionInput">МИССИЯ НА СЕГОДНЯ</label>
+          <input id="holidayMissionInput" type="text" name="mission" maxlength="300" value="{{ holiday.mission if holiday else '' }}" placeholder="Что нужно сделать сегодня?">
+        </div>
+
+        <div class="form-group">
+          <label for="holidayTypeSelect">ТИП ПРАЗДНИКА</label>
+          <select id="holidayTypeSelect" name="type" required>
+            <option value="author" {% if not holiday or holiday.type == 'author' %}selected{% endif %}>✍️ Авторский</option>
+            <option value="unusual" {% if holiday and holiday.type == 'unusual' %}selected{% endif %}>🎈 Необычный (существующий)</option>
+            <option value="official" {% if holiday and holiday.type == 'official' %}selected{% endif %}>📅 Официальный</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="holidayFactInput">ИНТЕРЕСНЫЙ ФАКТ (необязательно)</label>
+          <textarea id="holidayFactInput" name="fact" maxlength="600" placeholder="Короткий факт о празднике...">{{ holiday.fact if holiday else '' }}</textarea>
+        </div>
+
+        <div class="form-group">
+          <label for="holidayTagsInput">ТЕГИ (через запятую, для будущих коллекций)</label>
+          <input id="holidayTagsInput" type="text" name="tags" maxlength="250" value="{{ holiday.tags if holiday else '' }}" placeholder="animals, winter, cozy">
         </div>
 
         <div class="form-group checkbox-group">
           <input type="checkbox" name="active" id="active" {% if not holiday or holiday.active == 1 %}checked{% endif %}>
-          <label for="active" style="margin: 0; cursor: pointer; color: var(--ink);">Праздник активен (участвует в ротации)</label>
+          <label for="active" class="checkbox-label">Праздник активен (участвует в ротации)</label>
         </div>
 
         <div class="btn-container">
           <button type="submit" class="btn">Сохранить</button>
-          <a href="/admin" class="btn btn-secondary">Отмена</a>
+          <a href="{{ url_for('admin.admin_dashboard', q=back_q) if back_q else url_for('admin.admin_dashboard') }}" class="btn btn-ghost">Отмена</a>
         </div>
       </form>
     </div>
   </div>
+
+  <script src="{{ url_for('static', filename='js/form.js') }}"></script>
 </body>
 </html>

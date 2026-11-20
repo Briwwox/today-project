@@ -4,249 +4,355 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Админ-панель — сегодня 🎉</title>
-  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;900&display=swap" rel="stylesheet">
-  <style>
-    :root {
-      --paper: #fffaf3;
-      --ink: #34312f;
-      --muted: #8d8580;
-      --pink: #f8dfe3;
-      --pink-deep: #b66d7b;
-      --white: #fff;
-      --shadow: 0 18px 55px rgba(85, 66, 51, .07);
-    }
-    body {
-      margin: 0; min-height: 100vh; background: var(--paper);
-      color: var(--ink); font-family: "Nunito", sans-serif; padding: 30px;
-    }
-    .wrap { max-width: 1000px; margin: 0 auto; }
-    header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
-    h1 { margin: 0; font-size: 28px; font-weight: 900; }
-    .btn {
-      background: var(--ink); color: white; border: 0; border-radius: 999px;
-      padding: 10px 18px; font: inherit; font-weight: 700; cursor: pointer;
-      text-decoration: none; display: inline-block; transition: transform .18s ease;
-    }
-    .btn:hover { transform: translateY(-2px); }
-    .btn-secondary { background: white; color: var(--ink); border: 1px solid #eee7df; }
-    
-    .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 20px; }
-    .stat-box { background: white; padding: 15px; border-radius: 16px; box-shadow: var(--shadow); text-align: center; }
-    .stat-num { font-size: 24px; font-weight: 900; color: var(--pink-deep); }
-    .stat-label { font-size: 12px; color: var(--muted); font-weight: 700; text-transform: uppercase; }
-
-    .card {
-      background: var(--white); border-radius: 24px; padding: 24px;
-      box-shadow: var(--shadow); border: 1px solid rgba(255,255,255,.9);
-    }
-    .controls { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; gap: 15px; flex-wrap: wrap; }
-    
-    .search-wrapper { display: flex; gap: 10px; flex: 1; max-width: 400px; position: relative; }
-    .search-input {
-      width: 100%; padding: 10px 40px 10px 16px; border: 1px solid #eee7df;
-      border-radius: 12px; font: inherit; background: #faf8f5; outline: none;
-    }
-    .search-input:focus { border-color: var(--pink-deep); background: white; }
-    .search-clear {
-      position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
-      cursor: pointer; color: #b6aea6; font-weight: 900; border: none;
-      background: transparent; display: none; padding: 5px;
-    }
-    .search-clear:hover { color: var(--pink-deep); }
-
-    /* Стили для месяцев */
-    .month-accordion {
-      border: 1px solid #eee7df; border-radius: 12px; margin-bottom: 15px;
-      overflow: hidden; background: white;
-    }
-    .month-header {
-      background: #faf8f5; padding: 15px 20px; cursor: pointer;
-      display: flex; justify-content: space-between; align-items: center;
-      font-weight: 900; color: var(--ink); transition: 0.2s; user-select: none;
-    }
-    .month-header:hover { background: #f0ebe5; }
-    .month-header.active { background: var(--pink); color: var(--pink-deep); }
-    .month-count {
-      background: white; padding: 2px 8px; border-radius: 12px;
-      font-size: 12px; color: var(--muted); border: 1px solid #eee7df;
-    }
-    .month-content { display: none; padding: 20px; border-top: 1px solid #eee7df; }
-    .month-content.active { display: block; }
-
-    table { width: 100%; border-collapse: collapse; }
-    th, td { padding: 12px; text-align: left; border-bottom: 1px solid #eee7df; font-size: 14px; vertical-align: middle; }
-    th { font-weight: 900; color: var(--muted); font-size: 12px; letter-spacing: .5px; }
-    .emoji-cell { font-size: 24px; text-align: center; }
-    .color-cell { width: 40px; }
-    .color-circle { width: 24px; height: 24px; border-radius: 50%; border: 1px solid #ddd; display: inline-block; }
-    
-    .actions-cell { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
-    .badge { display: inline-block; padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: 700; cursor: pointer; text-decoration: none; font-family: inherit; }
-    .badge-active { background: #e1eee4; color: #3b6d47; }
-    .badge-inactive { background: #fdf2f4; color: #b66d7b; }
-    .badge:hover { opacity: 0.8; }
-    
-    .user-info { display: flex; align-items: center; gap: 10px; }
-    .user-avatar { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 2px solid var(--pink); }
-  </style>
+  <script src="{{ url_for('static', filename='js/theme.js') }}"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
 </head>
-<body>
+<body data-csrf="{{ csrf_token() }}">
   <div class="wrap">
-    <header>
-      <div>
-        <h1>Панель управления ✨</h1>
-        <p style="margin: 4px 0 0; color: var(--muted); font-size: 14px;">Управление праздниками сайта «сегодня»</p>
+
+    <header class="topbar">
+      <div class="brand-area">
+        <a href="/" target="_blank" rel="noopener" class="brand-logo">сегодня<span>.</span> 🎉</a>
+        <span class="admin-pill">Управление</span>
       </div>
-      <div style="display: flex; gap: 10px; align-items: center;">
-        <div class="user-info">
-          <img src="{{ url_for('static', filename='uploads/avatars/' + session.get('avatar', 'default.png')) }}" class="user-avatar">
-          <a href="/admin/profile" class="btn btn-secondary">Профиль 👤</a>
-        </div>
-        
+      <div class="nav-actions">
+        <a href="/admin/suggestions" class="btn btn-ghost">📥 Предложения</a>
         {% if session.role == 'superadmin' %}
-          <a href="/admin/users" class="btn btn-secondary">Пользователи 👥</a>
+          <a href="/admin/users" class="btn btn-ghost">👥 Команда</a>
         {% endif %}
-        
-        <a href="/" class="btn btn-secondary" target="_blank">На сайт ☀️</a>
-        <a href="/admin/logout" class="btn btn-secondary">Выйти</a>
+        <a href="/admin/profile" class="avatar-link" title="Мой профиль">
+          <img src="{{ url_for('static', filename='uploads/avatars/' + session.get('avatar', 'default.png')) }}" alt="avatar">
+          <span>{{ session.get('username', 'Автор') }}</span>
+        </a>
+
+        <button type="button" id="themeToggle" class="theme-toggle" title="Переключить тему" aria-label="Переключить тему">
+          <span class="toggle-icon sun">☀️</span>
+          <span class="toggle-icon moon">🌙</span>
+          <span class="toggle-thumb"></span>
+        </button>
+
+        <a href="/admin/logout" class="btn btn-ghost text-muted">Выйти</a>
       </div>
     </header>
 
-    <div class="stats">
-      <div class="stat-box"><div class="stat-num">{{ total_all }}</div><div class="stat-label">Всего праздников</div></div>
-      <div class="stat-box"><div class="stat-num">{{ total_active }}</div><div class="stat-label">Активных</div></div>
-      <div class="stat-box"><div class="stat-num">{{ total_inactive }}</div><div class="stat-label">Отключенных</div></div>
-    </div>
-
-    <div class="card">
-      <div class="controls">
-        <h2 style="margin: 0; font-size: 18px; font-weight: 900;">Календарь праздников</h2>
-        <div class="search-wrapper">
-          <input type="text" id="searchInput" value="{{ search_query }}" class="search-input" placeholder="Начните вводить название...">
-          <button class="search-clear" id="clearBtn" title="Очистить">✕</button>
+    <section class="live-bar">
+      <div class="live-card {% if current_promo %}is-active-promo{% endif %}">
+        <div>
+          <div class="live-label"><span class="dot {% if current_promo %}live{% endif %}"></span>{% if current_promo %}Промо-праздник в эфире{% else %}Праздник дня{% endif %}</div>
+          {% if current_promo %}
+            <p class="live-title">{{ current_promo.emoji }} {{ current_promo.title }}</p>
+            <p class="live-sub">⏳ До {{ current_promo.expires_str }}</p>
+          {% else %}
+            <p class="live-title">Стандартное расписание</p>
+            <p class="live-sub">Запустить выпуск на лету</p>
+          {% endif %}
         </div>
-        <div style="display: flex; gap: 10px; align-items: center;">
-            <a href="/admin/add" class="btn">+ Добавить</a>
-            
-            <a href="/admin/export" class="btn btn-secondary" title="Скачать все праздники в Excel">⬇️ Скачать</a>
-            
-            {% if session.role == 'superadmin' %}
-            <form method="POST" action="/admin/import" enctype="multipart/form-data" style="margin: 0;">
-                <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
-                
-                <input type="file" name="file" id="csvFileInput" accept=".csv" style="display: none;" onchange="confirmImport(this)">
-                <label for="csvFileInput" class="btn btn-secondary" style="cursor: pointer; margin: 0;" title="Загрузить базу из Excel-файла">⬆️ Загрузить</label>
+        <div class="live-controls">
+          <button type="button" class="btn btn-pink" data-open-modal="promoModal">⚡ На лету</button>
+          {% if current_promo %}
+            <form method="POST" action="/admin/promo/clear" class="m-0">
+              <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+              <button type="submit" class="link-btn text-pink">Выключить</button>
             </form>
-            {% endif %}
+          {% endif %}
         </div>
       </div>
 
-      <div id="holidays-container">
-        {% for month_num, month_name in months_dict.items() %}
-          {% if grouped_holidays[month_num] %}
-            <div class="month-accordion">
-              <div class="month-header {% if search_query %}active{% endif %}" onclick="toggleMonth('{{ month_num }}')">
-                <span>{{ month_name }}</span>
-                <span class="month-count">{{ grouped_holidays[month_num]|length }} шт.</span>
-              </div>
-              <div class="month-content {% if search_query %}active{% endif %}" id="month-content-{{ month_num }}">
-                <table>
-                  <thead>
-                    <tr>
-                      <th style="width: 50px;">Эмодзи</th>
-                      <th style="width: 40px;">Цвет</th>
-                      <th>Название</th>
-                      <th>Описание</th>
-                      <th style="width: 100px;">Статус</th>
-                      <th style="width: 180px;">Действия</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {% for h in grouped_holidays[month_num] %}
-                    <tr>
-                      <td class="emoji-cell">{{ h.emoji }}</td>
-                      <td class="color-cell"><span class="color-circle" style="background-color: {{ h.tint }};"></span></td>
-                      <td><strong>{{ h.title }}</strong><br><small style="color:var(--muted)">День №{{ h.day_number }}</small></td>
-                      <td style="color: var(--muted); max-width: 250px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ h.description }}</td>
-                      <td>
-                        <form method="POST" action="/admin/toggle/{{ h.id }}" style="display:inline;">
+      <div class="live-card {% if current_promo_message %}is-active-msg{% endif %}">
+        <div class="live-msg-content">
+          <div class="live-label"><span class="dot {% if current_promo_message %}live{% endif %}"></span>{% if current_promo_message %}Срочное послание{% else %}Послание дня{% endif %}</div>
+          {% if current_promo_message %}
+            <p class="live-title text-truncate">«{{ current_promo_message.text }}»</p>
+            <p class="live-sub">⏳ До {{ current_promo_message.expires_str }}</p>
+          {% else %}
+            <p class="live-title">Авто-ротация ({{ day_messages|length }} фраз)</p>
+            <p class="live-sub">Задать фразу или базу</p>
+          {% endif %}
+        </div>
+        <div class="live-controls">
+          <button type="button" class="btn btn-lavender" data-open-modal="messageModal">💌 Послание</button>
+          {% if current_promo_message %}
+            <form method="POST" action="/admin/promo_message/clear" class="m-0">
+              <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+              <button type="submit" class="link-btn text-lavender">Выключить</button>
+            </form>
+          {% endif %}
+        </div>
+      </div>
+    </section>
+
+    <div class="stats-strip">
+      <div class="stat-chip"><strong>{{ total_all }}</strong><span>всего в базе</span></div>
+      <div class="stat-chip"><strong class="text-mint">{{ total_active }}</strong><span>активных</span></div>
+      <div class="stat-chip"><strong class="text-muted">{{ total_inactive }}</strong><span>скрытых</span></div>
+    </div>
+
+    <main class="main-card">
+      <div class="toolbar">
+        <div class="search-box">
+          <input type="text" id="searchInput" value="{{ search_query }}" placeholder="🔍 Поиск по названию или описанию...">
+          <button type="button" class="search-clear" id="clearBtn" title="Очистить">✕</button>
+        </div>
+
+        <div class="toolbar-actions">
+          <a href="/admin/add" class="btn">+ Новый праздник</a>
+          <a href="/admin/export" class="btn btn-ghost" title="Экспорт в CSV">⬇️ CSV</a>
+          {% if session.role == 'superadmin' %}
+            <form method="POST" action="/admin/import" enctype="multipart/form-data" class="m-0" id="csvImportForm">
+              <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+              <input type="file" name="file" id="csvFileInput" accept=".csv,text/csv" class="hidden">
+              <label for="csvFileInput" class="btn btn-ghost cursor-pointer m-0">⬆️ Импорт</label>
+            </form>
+          {% endif %}
+        </div>
+      </div>
+
+      <div class="filter-panel">
+        <div class="f-group-inline">
+          <span>Месяц:</span>
+          <select id="monthSelect" class="f-select">
+            <option value="all">Все месяцы</option>
+            {% for month_num, month_name in months_dict.items() %}
+              {% if grouped_holidays[month_num] %}
+                <option value="{{ month_num }}">{{ month_name }}</option>
+              {% endif %}
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="f-group-inline">
+          <span>Статус:</span>
+          <select id="statusSelect" class="f-select">
+            <option value="all">Все статусы</option>
+            <option value="1">Активные</option>
+            <option value="0">Скрытые</option>
+          </select>
+        </div>
+
+        <div class="f-group-inline">
+          <span>Категория:</span>
+          <select id="typeSelect" class="f-select">
+            <option value="all">Все категории</option>
+            <option value="official">Официальные</option>
+            <option value="unusual">Необычные</option>
+            <option value="author">Авторские</option>
+          </select>
+        </div>
+
+        <div class="f-group-inline">
+          <span>Сортировка:</span>
+          <select id="sortSelect" class="f-select">
+            <option value="date_asc">По порядку (дни)</option>
+            <option value="title_asc">По названию (А-Я)</option>
+            <option value="status_desc">Сначала активные</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="table-wrap" id="holidays-container">
+        <table>
+          <thead>
+            <tr>
+              <th class="col-icon">Иконка</th>
+              <th>Праздник</th>
+              <th>Дата</th>
+              <th>Категория</th>
+              <th>Описание</th>
+              <th>Статус</th>
+              <th class="text-right">Действия</th>
+            </tr>
+          </thead>
+          <tbody id="holidaysTableBody">
+            {% for month_num, month_name in months_dict.items() %}
+              {% for h in grouped_holidays[month_num] %}
+                <tr class="holiday-row"
+                    data-month="{{ month_num }}"
+                    data-active="{{ h.active }}"
+                    data-type="{{ h.type or 'author' }}"
+                    data-day="{{ h.day_number }}"
+                    data-title="{{ h.title | lower }}">
+                  <td>
+                    <div class="emoji-avatar" data-tint="{{ h.tint }}">{{ h.emoji }}</div>
+                  </td>
+                  <td>
+                    <div class="h-title">{{ h.title }}</div>
+                    <div class="h-meta">День №{{ h.day_number }}</div>
+                  </td>
+                  <td><span class="date-cell">{{ h.show_date or '—' }}</span></td>
+                  <td>
+                    {% set t = h.type or 'author' %}
+                    <span class="type-tag type-{{ t }}">
+                      {% if t == 'official' %}📅 Официальный{% elif t == 'unusual' %}🎈 Необычный{% else %}✍️ Авторский{% endif %}
+                    </span>
+                  </td>
+                  <td><div class="h-desc" title="{{ h.description }}">{{ h.description }}</div></td>
+                  <td>
+                    <button type="button"
+                            class="status-btn js-toggle-status {% if h.active == 1 %}status-on{% else %}status-off{% endif %}"
+                            data-id="{{ h.id }}">
+                      {% if h.active == 1 %}● Активен{% else %}○ Скрыт{% endif %}
+                    </button>
+                  </td>
+                  <td>
+                    <div class="row-actions">
+                      <a href="/admin/edit/{{ h.id }}?q={{ search_query }}" class="icon-btn">Изменить</a>
+                      {% if session.role == 'superadmin' %}
+                        <form method="POST" action="/admin/delete/{{ h.id }}" class="m-0 js-confirm-form" data-confirm="Удалить этот праздник?">
                           <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
-                          <input type="hidden" name="q" value="{{ search_query }}">
-                          <button type="submit" class="badge {% if h.active == 1 %}badge-active{% else %}badge-inactive{% endif %}" style="border:none;">
-                            {% if h.active == 1 %}Активен{% else %}Отключен{% endif %}
-                          </button>
+                          <button type="submit" class="icon-btn del" title="Удалить">✕</button>
                         </form>
-                      </td>
-                      <td class="actions-cell">
-                        <a href="/admin/edit/{{ h.id }}?q={{ search_query }}" class="btn btn-secondary" style="padding: 6px 12px; font-size: 12px;">Изменить</a>
-                        {% if session.role == 'superadmin' %}
-                          <form method="POST" action="/admin/delete/{{ h.id }}" style="display:inline;">
-                            <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
-                            <input type="hidden" name="q" value="{{ search_query }}">
-                            <button type="submit" class="btn btn-secondary" style="padding: 6px 12px; font-size: 12px; background: #fdf2f4; color: #b66d7b; border-color: #f8dfe3;" onclick="return confirm('Точно удалить этот праздник?');">Удалить</button>
-                          </form>
-                        {% endif %}
-                      </td>
-                    </tr>
-                    {% endfor %}
-                  </tbody>
-                </table>
+                      {% endif %}
+                    </div>
+                  </td>
+                </tr>
+              {% endfor %}
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </main>
+  </div>
+
+  <div id="promoModal" class="modal-backdrop">
+    <div class="modal-box">
+      <div class="modal-head">
+        <h3>⚡ Праздник «на лету» (без БД)</h3>
+        <button type="button" class="close-x" data-close-modal="promoModal">✕</button>
+      </div>
+      <form method="POST" action="/admin/promo/set">
+        <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+        <div class="promo-row">
+          <div class="w-70">
+            <label>Эмодзи</label>
+            <input type="text" name="emoji" value="{{ current_promo.emoji if current_promo else '🎉' }}" maxlength="5" class="f-input text-center text-lg" required>
+          </div>
+          <div class="w-70">
+            <label>Цвет</label>
+            <input type="color" name="tint" value="{{ current_promo.tint if current_promo else '#f7edc9' }}" class="f-input">
+          </div>
+          <div class="flex-1">
+            <label>Название</label>
+            <input type="text" name="title" value="{{ current_promo.title if current_promo else '' }}" placeholder="Название..." class="f-input" required>
+          </div>
+        </div>
+        <div class="f-group"><label>Описание</label><textarea name="description" rows="2" class="f-input" required>{{ current_promo.description if current_promo else '' }}</textarea></div>
+        <div class="f-group"><label>Миссия</label><input type="text" name="mission" value="{{ current_promo.mission if current_promo else '' }}" class="f-input"></div>
+        <div class="f-group">
+          <label>Интересный факт</label>
+          <input type="text" name="fact" value="{{ current_promo.fact if current_promo else '' }}" placeholder="Спецвыпуск по случаю события!" class="f-input">
+        </div>
+
+        <div class="f-group">
+          <label>Таймер</label>
+          <select name="duration_hours" id="promoDurationSelect" class="f-input" onchange="toggleCustomTime('promo')">
+            <option value="1">⏱ На 1 час</option>
+            <option value="3">⏱ На 3 часа</option>
+            <option value="12">⏱ На 12 часов</option>
+            <option value="24" selected>⏱ На 24 часа</option>
+            <option value="0">♾ Бессрочно</option>
+            <option value="custom">🛠 Свое время (точная дата)</option>
+          </select>
+        </div>
+
+        <div class="f-group hidden" id="promoCustomTimeWrap">
+          <label>Точное время окончания</label>
+          <input type="datetime-local" name="custom_expires_at" class="f-input">
+        </div>
+
+        <div class="modal-actions">
+          <button type="submit" class="btn btn-pink flex-1 justify-center p-12">Запустить в эфир 🚀</button>
+          {% if current_promo %}
+            <button type="submit" formaction="/admin/promo/clear" formnovalidate class="btn btn-ghost text-pink">Остановить</button>
+          {% endif %}
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div id="messageModal" class="modal-backdrop">
+    <div class="modal-box">
+      <div class="modal-head">
+        <h3>💌 Послание дня</h3>
+        <button type="button" class="close-x" data-close-modal="messageModal">✕</button>
+      </div>
+
+      <form method="POST" action="/admin/promo_message/set" class="promo-msg-form">
+        <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+        <div class="f-group"><label>Срочное послание на лету</label><input type="text" name="text" value="{{ current_promo_message.text if current_promo_message else '' }}" class="f-input" required></div>
+
+        <div class="f-group">
+          <label>Таймер</label>
+          <div class="flex-gap-10">
+            <select name="duration_hours" id="msgDurationSelect" class="f-input flex-1" onchange="toggleCustomTime('msg')">
+              <option value="1">⏱ На 1 час</option>
+              <option value="24" selected>⏱ На 24 часа</option>
+              <option value="0">♾ Бессрочно</option>
+              <option value="custom">🛠 Свое время</option>
+            </select>
+            <button type="submit" class="btn btn-lavender">Запустить ✨</button>
+          </div>
+        </div>
+
+        <div class="f-group hidden" id="msgCustomTimeWrap">
+          <label>Точное время окончания</label>
+          <input type="datetime-local" name="custom_expires_at" class="f-input">
+        </div>
+      </form>
+
+      <div>
+        <label class="section-label">ПОСТОЯННАЯ БАЗА ФРАЗ ({{ day_messages|length }} ШТ.)</label>
+
+        <div class="msg-filter-bar">
+          <input type="text" id="msgSearchInput" placeholder="🔍 Поиск по фразам..." class="f-input msg-search-input">
+          <select id="msgSortSelect" class="f-select">
+            <option value="newest">Сначала новые</option>
+            <option value="oldest">Сначала старые</option>
+            <option value="alpha">По алфавиту (А-Я)</option>
+          </select>
+        </div>
+
+        <form id="messageForm" method="POST" action="/admin/messages/add" class="msg-add-form">
+          <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+          <input type="text" id="messageInputText" name="text" placeholder="Новая фраза в ротацию..." class="f-input flex-1" required>
+          <button type="submit" id="messageFormBtn" class="btn btn-ghost whitespace-nowrap">+ В базу</button>
+          <button type="button" id="messageFormCancel" class="btn btn-ghost hidden">✕</button>
+        </form>
+
+        <div class="msg-list" id="msgListContainer">
+          {% for m in day_messages %}
+            <div class="msg-row"
+                 id="msg-item-{{ m.id }}"
+                 data-id="{{ m.id }}"
+                 data-text="{{ m.text | lower }}">
+              <span id="msg-text-{{ m.id }}">{{ m.text }}</span>
+              <div class="msg-row-actions">
+                <button type="button" class="icon-only-btn js-edit-msg" data-id="{{ m.id }}" title="Редактировать">✏️</button>
+                <form method="POST" action="/admin/messages/delete/{{ m.id }}" class="m-0 js-delete-msg-form" data-confirm="Удалить эту фразу из базы?">
+                  <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+                  <button type="submit" class="del-msg-btn" title="Удалить">✕</button>
+                </form>
               </div>
             </div>
-          {% endif %}
-        {% endfor %}
-
-        {% if search_query and total_filtered == 0 %}
-          <p style="text-align: center; color: var(--muted); padding: 20px; font-weight: 700; font-size: 16px;">
-            По вашему запросу «{{ search_query }}» ничего не найдено.
-          </p>
-        {% endif %}
+          {% endfor %}
+        </div>
       </div>
     </div>
   </div>
 
-  <script>
-    function toggleMonth(monthNum) {
-      const header = document.querySelector(`.month-header[onclick="toggleMonth('${monthNum}')"]`);
-      const content = document.getElementById(`month-content-${monthNum}`);
-      if (header && content) { header.classList.toggle('active'); content.classList.toggle('active'); }
-    }
-    const searchInput = document.getElementById('searchInput');
-    const clearBtn = document.getElementById('clearBtn');
-    const container = document.getElementById('holidays-container');
-    let searchTimeout;
-    if (searchInput.value.length > 0) clearBtn.style.display = 'block';
-    searchInput.addEventListener('input', () => {
-      clearBtn.style.display = searchInput.value.length > 0 ? 'block' : 'none';
-      clearTimeout(searchTimeout);
-      searchTimeout = setTimeout(() => {
-        const query = searchInput.value.trim();
-        window.history.replaceState(null, '', query ? `/admin?q=${encodeURIComponent(query)}` : '/admin');
-        fetch(`/admin?q=${encodeURIComponent(query)}`)
-          .then(response => response.text())
-          .then(html => {
-            const parser = new DOMParser();
-            const doc = parser.parseFromString(html, 'text/html');
-            container.innerHTML = doc.getElementById('holidays-container').innerHTML;
-          });
-      }, 300);
-    });
-    clearBtn.addEventListener('click', () => {
-      searchInput.value = '';
-      clearBtn.style.display = 'none';
-      searchInput.dispatchEvent(new Event('input'));
-      searchInput.focus();
-    });
+  <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
 
-    function confirmImport(input) {
-      if (input.files.length > 0) {
-        if (confirm('ВНИМАНИЕ! Текущая база данных будет полностью удалена и заменена данными из файла. Продолжить?')) {
-          input.form.submit();
-        } else {
-          input.value = '';
-        }
-      }
-    }
-  </script>
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      <div class="toast-stack" id="toastStack">
+        {% for category, msg in messages %}
+          <div class="toast-item {{ category if category in ('success', 'error') else 'success' }}">
+            <span>{{ msg }}</span>
+            <button type="button" class="toast-close" aria-label="Закрыть">✕</button>
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+  {% endwith %}
 </body>
 </html>

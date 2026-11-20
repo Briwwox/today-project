@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Предложить свой праздник 🎉</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <link rel="icon" type="image/png" href="{{ url_for('static', filename='img/favicon.png') }}">
+  <script src="{{ url_for('static', filename='js/theme.js') }}"></script>
+</head>
+<body>
+  <main class="wrap suggest-wrap">
+    <header>
+      <div class="brand">сегодня<span>.</span> 🎉</div>
+      <div class="header-controls">
+        <button id="themeToggle" class="theme-toggle" title="Переключить тему" aria-label="Переключить тему">
+          <span class="toggle-icon sun">☀️</span>
+          <span class="toggle-icon moon">🌙</span>
+          <span class="toggle-thumb"></span>
+        </button>
+
+        <a href="{{ url_for('main.index') }}" class="secondary back-pill">← На главную</a>
+      </div>
+    </header>
+
+    <div class="card suggest-card">
+      <h2 class="suggest-title">✨ Предложить свой праздник</h2>
+      <p class="suggest-subtitle">
+        Придумал крутой повод для радости? Заполни форму, и после проверки модератором он появится на сайте!
+      </p>
+
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          <div class="toast-stack" id="toastStack">
+            {% for category, message in messages %}
+              <div class="toast-item {{ category if category in ('success', 'error') else 'success' }}">
+                <span>{{ message }}</span>
+                <button type="button" class="toast-close" aria-label="Закрыть">✕</button>
+              </div>
+            {% endfor %}
+          </div>
+        {% endif %}
+      {% endwith %}
+
+      <form method="POST" class="suggest-form">
+        <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+
+        <div>
+          <label class="suggest-label">НАЗВАНИЕ ПРАЗДНИКА *</label>
+          <input type="text" name="title" required placeholder="Например: День утреннего кофе в постель" class="suggest-input">
+        </div>
+
+        <div class="suggest-row">
+          <div class="suggest-col-emoji">
+            <label class="suggest-label">ЭМОДЗИ</label>
+            <input type="text" name="emoji" placeholder="☕" maxlength="5" class="suggest-input suggest-emoji-input">
+          </div>
+          <div class="suggest-col-author">
+            <label class="suggest-label">КТО ПРЕДЛОЖИЛ (Твое имя / ник)</label>
+            <input type="text" name="suggested_by" placeholder="Алексей" class="suggest-input">
+          </div>
+        </div>
+
+        <div>
+          <label class="suggest-label">ОПИСАНИЕ *</label>
+          <textarea name="description" required rows="3" placeholder="Почему этот день важен и как он появился..." class="suggest-input suggest-textarea"></textarea>
+        </div>
+
+        <div>
+          <label class="suggest-label">МИССИЯ НА СЕГОДНЯ</label>
+          <input type="text" name="mission" placeholder="Выпить чашечку капучино не спеша никуда." class="suggest-input">
+        </div>
+
+        <button type="submit" class="primary suggest-submit">
+          Отправить на модерацию 🚀
+        </button>
+      </form>
+    </div>
+  </main>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      document.querySelectorAll('#toastStack .toast-item').forEach((toast) => {
+        if (toast.dataset.toastBound === 'true') return;
+        toast.dataset.toastBound = 'true';
+        const closeBtn = toast.querySelector('.toast-close');
+        const hideToast = () => {
+          toast.classList.add('is-hiding');
+          setTimeout(() => toast.remove(), 300);
+        };
+        const timer = setTimeout(hideToast, 3500);
+        closeBtn?.addEventListener('click', () => {
+          clearTimeout(timer);
+          hideToast();
+        });
+      });
+    });
+  </script>
+</body>
+</html>
