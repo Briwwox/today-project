@@ -11,7 +11,7 @@
   <meta property="og:type" content="website">
   <meta property="og:title" content="сегодня — праздник каждый день">
   <meta property="og:description" content="Заходи и узнай, какой милый праздник сегодня!">
-  <meta property="og:image" id="ogImage" content="{{ url_for('static', filename='img/og-preview.jpg', _external=True) }}">
+  <meta property="og:image" id="ogImage" content="{{ url_for('static', filename='img/og-preview.jpg', _external=True) }}?v=2">
 
   <title>сегодня — праздник каждый день</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -130,7 +130,7 @@
           m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
           m[i].l=1*new Date();
           for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
-          k=e.createElement(t),a=e.createElement(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)
+          k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)
       })(window, document,'script','https://mc.yandex.ru/metrika/tag.js?id=114407978', 'ym');
 
       ym(114407978, 'init', {ssr:true, webvisor:true, clickmap:true, ecommerce:"dataLayer", referrer: document.referrer, url: location.href, accurateTrackBounce:true, trackLinks:true});
