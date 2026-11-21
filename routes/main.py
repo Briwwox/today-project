@@ -73,6 +73,16 @@ def index():
     return render_template("index.html")
 
 
+@main_bp.route("/yandex_b26e4807b4245943.html")
+def yandex_verification():
+    return render_template("yandex_b26e4807b4245943.html")
+
+
+@main_bp.route("/google871f65d840611d5f.html")
+def google_verification():
+    return render_template("google871f65d840611d5f.html")
+
+
 @main_bp.route("/api/today")
 def api_today():
     promo = get_active_promo()
