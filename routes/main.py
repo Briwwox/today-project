@@ -1,7 +1,7 @@
 import random
 import sqlite3
 from datetime import datetime, timedelta
-from flask import Blueprint, flash, jsonify, redirect, render_template, request, url_for
+from flask import Blueprint, Response, flash, jsonify, redirect, render_template, request, url_for
 from extensions import limiter
 from utils import clip_text, db_connection
 
@@ -71,6 +71,44 @@ def _serialize_holiday(holiday, day_label: str) -> dict:
 @main_bp.route("/")
 def index():
     return render_template("index.html")
+
+
+@main_bp.route("/robots.txt")
+def robots_txt():
+    lines = [
+        "User-agent: *",
+        "Allow: /",
+        "Disallow: /admin",
+        "Disallow: /api/",
+        "Sitemap: https://holiday-everyday.duckdns.org/sitemap.xml",
+    ]
+    return Response("\n".join(lines), mimetype="text/plain")
+
+
+@main_bp.route("/sitemap.xml")
+def sitemap_xml():
+    today = datetime.now().strftime("%Y-%m-%d")
+    pages = [
+        {"loc": "https://holiday-everyday.duckdns.org/", "lastmod": today, "changefreq": "daily", "priority": "1.0"},
+        {"loc": "https://holiday-everyday.duckdns.org/suggest", "lastmod": today, "changefreq": "weekly", "priority": "0.7"},
+    ]
+    xml_items = []
+    for p in pages:
+        xml_items.append(
+            f"  <url>\n"
+            f"    <loc>{p['loc']}</loc>\n"
+            f"    <lastmod>{p['lastmod']}</lastmod>\n"
+            f"    <changefreq>{p['changefreq']}</changefreq>\n"
+            f"    <priority>{p['priority']}</priority>\n"
+            f"  </url>"
+        )
+    xml = (
+        '<?xml version="1.0" encoding="UTF-8"?>\n'
+        '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
+        + "\n".join(xml_items)
+        + "\n</urlset>"
+    )
+    return Response(xml, mimetype="application/xml")
 
 
 @main_bp.route("/yandex_b26e4807b4245943.html")
