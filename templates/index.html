@@ -4,13 +4,16 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#fffaf3">
-  <meta name="description" content="Каждый день — новый маленький повод для радости.">
+  <meta name="description" content="Какой сегодня праздник и маленький повод для радости каждый день. Интересные факты, миссии на день и случайные праздники.">
   <meta name="csrf-token" content="{{ csrf_token() }}">
+  <link rel="canonical" href="{{ url_for('main.index', _external=True) }}">
   <link rel="icon" type="image/png" href="{{ url_for('static', filename='img/favicon.png') }}">
 
   <meta property="og:type" content="website">
+  <meta property="og:locale" content="ru_RU">
+  <meta property="og:url" content="{{ url_for('main.index', _external=True) }}">
   <meta property="og:title" content="сегодня — праздник каждый день">
-  <meta property="og:description" content="Заходи и узнай, какой милый праздник сегодня!">
+  <meta property="og:description" content="Заходи и узнай, какой милый праздник сегодня, поймай миссию дня и открой случайный праздник!">
   <meta property="og:image" id="ogImage" content="{{ url_for('static', filename='img/og-preview.jpg', _external=True) }}?v=2">
 
   <title>сегодня — праздник каждый день</title>
